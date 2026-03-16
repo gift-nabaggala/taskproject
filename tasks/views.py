@@ -13,64 +13,64 @@ class TaskForm(forms.ModelForm):
                 fields = ['title', 'description', 'completed']
 
 
-        # Create your views here.
-        #Registration view
-        def register(request):
-                if request.method == 'POST':
-                        form = UserCreationForm(request.POST)
-                        if form.is_valid():
-                                form.save()
-                                return redirect('login')
-                else:
-                        form = UserCreationForm()
-                return render(request, "tasks/register.html",{"form": form})
+# Create your views here.
+#Registration view
+def register(request):
+        if request.method == 'POST':
+                form = UserCreationForm(request.POST)
+                if form.is_valid():
+                        form.save()
+                        return redirect('login')
+        else:
+                form = UserCreationForm()
+        return render(request, "tasks/register.html",{"form": form})
 
-        #Login view
-        def user_login(request):
-                if request.method == 'POST':
-                        form = AuthenticationForm(data=request.POST)
-                        if form.is_valid():
-                                user = form.get_user()
-                                login(request, user)
-                                return redirect('task_list')
-                else:
-                        form = AuthenticationForm()
-                return render(request, "tasks/login.html",{"form": form})
+#Login view
+def user_login(request):
+        if request.method == 'POST':
+                form = AuthenticationForm(data=request.POST)
+                if form.is_valid():
+                        user = form.get_user()
+                        login(request, user)
+                        return redirect('task_list')
+        else:
+                form = AuthenticationForm()
+        return render(request, "tasks/login.html",{"form": form})
 
-        #Logout view
-        def user_logout(request):
-                logout(request)
-                return redirect('login')
+#Logout view
+def user_logout(request):
+        logout(request)
+        return redirect('login')
 
 
-        #task list view
-        @login_required
-        def task_list(request):
-                tasks = Task.objects.all()
-                return render(request, "tasks/task_list.html", {"tasks": tasks})
+#task list view
+@login_required
+def task_list(request):
+        tasks = Task.objects.all()
+        return render(request, "tasks/task_list.html", {"tasks": tasks})
 
-        def task_create(request):
-                if request.method == 'POST':
-                        form = TaskForm(request.POST)
-                        if form.is_valid():
-                                form.save()
-                                return redirect('task_list')
-                else:
-                        form = TaskForm()
-                return render(request, "tasks/task_form.html", {"form": form})
-                
-        def task_update(request, id):
-                task = Task.objects_or_404(Task, id=id)
-                if request.method == 'POST':
-                        form = TaskForm(request.POST, instance=task)
-                        if form.is_valid():
-                                form.save()
-                                return redirect('task_list')
-                else:
-                        form = TaskForm(instance=task)
-                return render(request, "tasks/task_form.html", {"form": form})
+def task_create(request):
+        if request.method == 'POST':
+                form = TaskForm(request.POST)
+                if form.is_valid():
+                        form.save()
+                        return redirect('task_list')
+        else:
+                form = TaskForm()
+        return render(request, "tasks/task_form.html", {"form": form})
+        
+def task_update(request, id):
+        task = Task.objects_or_404(Task, id=id)
+        if request.method == 'POST':
+                form = TaskForm(request.POST, instance=task)
+                if form.is_valid():
+                        form.save()
+                        return redirect('task_list')
+        else:
+                form = TaskForm(instance=task)
+        return render(request, "tasks/task_form.html", {"form": form})
 
-        def task_delete(request, id):
-                task = get_object_or_404(Task, id=id)
-                task.delete()
-                return redirect('task_list')
+def task_delete(request, id):
+        task = get_object_or_404(Task, id=id)
+        task.delete()
+        return redirect('task_list')
