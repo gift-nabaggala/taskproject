@@ -78,3 +78,48 @@ def task_delete(request, id):
         task = get_object_or_404(Task, id=id, user=request.user) #Ensure the user can only delete their own tasks
         task.delete()
         return redirect('task_list')
+
+def is_admin(user):
+        return user.is_superuser or user.is_staff
+
+@login_required
+def task_list(request):
+        #if admin show all tasks
+        if is_admin(request.user):
+                tasks = Task.objects.all()
+                is_admin_view = True
+        else:
+                #Regular users only see their own tasks
+                tasks = Task.objects.filter(user=request.user)
+                is_admin_view = False
+
+        return render(request, "tasks/task_list.html", {"tasks": tasks, "is_admin_view": is_admin_view})
+
+@login_required
+def task_update(request, id):
+        #if user is admin they can update any task
+        if is_admin(request.user):
+                task = get_object_or_404(Task, id=id)
+        else:
+                #Regular users can only update their own tasks
+                task = get_object_or_404(Task, id=id, user=request.user)
+        if request.method == 'POST':
+                form = TaskForm(request.POST, instance=task)
+                if form.is_valid():
+                        form.save()
+                        return redirect('task_list')
+        else:
+                form = TaskForm(instance=task)  
+        return render(request, "tasks/task_form.html", {"form": form})
+
+@login_required
+def task_delete(request, id):
+        #if user is admin they can delete any task
+        if is_admin(request.user):
+                task = get_object_or_404(Task, id=id)
+        else:
+                #Regular users can only delete their own tasks
+                task = get_object_or_404(Task, id=id, user=request.user)
+        task.delete()
+        return redirect('task_list')
+        
